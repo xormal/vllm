@@ -1,0 +1,112 @@
+# OpenAI Responses API Compliance Checker Configuration
+
+# Target server configuration
+server:
+  base_url: "http://192.168.228.43:8000"
+  api_version: "v1"
+  timeout: 30  # seconds
+  verify_ssl: false
+
+# Authentication (if needed)
+auth:
+  enabled: false
+  api_key: ""  # Set via environment variable OPENAI_API_KEY if needed
+  header_name: "Authorization"
+  header_prefix: "Bearer"
+
+# Test configuration
+testing:
+  # Model to use for tests
+  test_model: "gpt-4o-mini"
+
+  # Test timeouts
+  request_timeout: 30
+  streaming_timeout: 60
+
+  # Test inputs
+  simple_text: "Hello, how are you?"
+  complex_text: "Write a short poem about artificial intelligence."
+  reasoning_text: "Explain step by step: what is 2+2*2?"
+
+  # Test parameters
+  max_output_tokens: 100
+  temperature: 0.7
+
+  # Tool calling test
+  test_tool:
+    type: "function"
+    function:
+      name: "get_weather"
+      description: "Get the current weather"
+      parameters:
+        type: "object"
+        properties:
+          location:
+            type: "string"
+            description: "City name"
+        required: ["location"]
+
+# Compliance checking
+compliance:
+  # Spec file locations (relative to project root)
+  spec_mapping: "../SPEC_TO_CODE_MAPPING.json"
+
+  # Minimum compliance scores to pass
+  thresholds:
+    overall: 70
+    endpoints: 60
+    parameters: 70
+    events: 60
+
+  # Critical features that must be implemented
+  critical_endpoints:
+    - "POST /v1/responses"
+    - "GET /v1/responses/{response_id}"
+    - "POST /v1/responses/{response_id}/cancel"
+
+  critical_events:
+    - "response.created"
+    - "response.completed"
+    - "response.output_item.added"
+    - "response.output_item.done"
+
+  # Skip tests for known unimplemented features
+  skip_unimplemented: true
+
+# Reporting
+reporting:
+  output_dir: "./reports"
+  formats:
+    - "markdown"
+    - "json"
+    - "html"
+
+  # Include detailed error logs
+  verbose: true
+
+  # Save raw API responses for debugging
+  save_responses: true
+
+  # Generate comparison with OpenAI official API
+  compare_with_openai: false
+
+# Logging
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  file: "./logs/compliance.log"
+  console: true
+
+# Advanced options
+advanced:
+  # Retry failed requests
+  retry_attempts: 3
+  retry_delay: 1  # seconds
+
+  # Parallel testing
+  parallel_tests: false
+  max_workers: 4
+
+  # Rate limiting
+  rate_limit:
+    enabled: false
+    requests_per_second: 10

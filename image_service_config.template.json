@@ -1,0 +1,19 @@
+{
+  "provider": "example-image-backend",
+  "api_base": "https://api.example.com/v1",
+  "api_key_env": "EXAMPLE_IMAGE_API_KEY",
+  "default_model": "gpt-image-1",
+  "operations": {
+    "generate": {
+      "path": "/images",
+      "method": "POST",
+      "default_params": {
+        "size": "1024x1024"
+      }
+    },
+    "edit": {
+      "path": "/images/edits",
+      "method": "POST"
+    }
+  }
+}

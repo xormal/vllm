@@ -1,0 +1,929 @@
+{
+  "version": "2025-11-24",
+  "spec_source": {
+    "responses": "DOC_responses.md",
+    "streaming_events": "DOC_streaming_events.md",
+    "last_updated": "2025-11-24"
+  },
+  "endpoints": {
+    "POST /v1/responses": {
+      "spec_reference": "DOC_responses.md:194-673",
+      "description": "Create a model response",
+      "implemented": true,
+      "code_location": {
+        "file": "vllm/entrypoints/openai/api_server.py",
+        "line": "896-989",
+        "handler": "create_responses"
+      },
+      "request_model": "ResponsesRequest",
+      "response_model": "ResponsesResponse",
+      "supports_streaming": true,
+      "compliance_score": 85,
+      "test_priority": "critical",
+      "known_issues": [
+        "delta format fixed 2025-11-24",
+        "tool_outputs uses different workflow"
+      ]
+    },
+    "GET /v1/responses/{response_id}": {
+      "spec_reference": "DOC_responses.md:677-825",
+      "description": "Retrieve a model response",
+      "implemented": true,
+      "code_location": {
+        "file": "vllm/entrypoints/openai/api_server.py",
+        "line": "1079-1141",
+        "handler": "retrieve_responses"
+      },
+      "supports_streaming": true,
+      "compliance_score": 100,
+      "test_priority": "high"
+    },
+    "DELETE /v1/responses/{response_id}": {
+      "spec_reference": "DOC_responses.md:829-881",
+      "description": "Delete a model response",
+      "implemented": false,
+      "compliance_score": 0,
+      "test_priority": "low",
+      "reason": "Not implemented - storage backend dependent"
+    },
+    "POST /v1/responses/{response_id}/cancel": {
+      "spec_reference": "DOC_responses.md:884-990",
+      "description": "Cancel a response",
+      "implemented": true,
+      "code_location": {
+        "file": "vllm/entrypoints/openai/api_server.py",
+        "line": "1143-1179",
+        "handler": "cancel_responses"
+      },
+      "compliance_score": 100,
+      "test_priority": "high"
+    },
+    "POST /v1/responses/{response_id}/tool_outputs": {
+      "spec_reference": "DOC_responses.md:1181-1221",
+      "description": "Submit tool outputs",
+      "implemented": true,
+      "code_location": {
+        "file": "vllm/entrypoints/openai/api_server.py",
+        "line": "1181-1221",
+        "handler": "submit_tool_outputs"
+      },
+      "compliance_score": 60,
+      "test_priority": "critical",
+      "known_issues": [
+        "vLLM uses previous_response_id workflow instead of tool_outputs continuation"
+      ]
+    },
+    "GET /v1/responses/{response_id}/input_items": {
+      "spec_reference": "DOC_responses.md:993-1101",
+      "description": "List input items",
+      "implemented": false,
+      "compliance_score": 0,
+      "test_priority": "medium"
+    },
+    "POST /v1/responses/input_tokens": {
+      "spec_reference": "DOC_responses.md:1104-1339",
+      "description": "Get input token counts",
+      "implemented": false,
+      "compliance_score": 0,
+      "test_priority": "low"
+    },
+    "GET /v1/models": {
+      "spec_reference": "OpenAI API Reference",
+      "description": "List available models",
+      "implemented": true,
+      "code_location": {
+        "file": "vllm/entrypoints/openai/api_server.py",
+        "line": "575-581",
+        "handler": "show_available_models"
+      },
+      "compliance_score": 100,
+      "test_priority": "high"
+    },
+    "POST /v1/conversations": {
+      "spec_reference": "DOC_conversations.md:20-120",
+      "description": "Create a conversation container",
+      "implemented": true,
+      "code_location": {
+        "file": "vllm/entrypoints/openai/api_server.py",
+        "line": "1250-1280",
+        "handler": "create_conversation"
+      }
+    },
+    "GET /v1/conversations/{conversation_id}": {
+      "spec_reference": "DOC_conversations.md:120-190",
+      "implemented": true,
+      "code_location": {
+        "file": "vllm/entrypoints/openai/api_server.py",
+        "line": "1283-1307",
+        "handler": "retrieve_conversation"
+      }
+    },
+    "POST /v1/conversations/{conversation_id}": {
+      "spec_reference": "DOC_conversations.md:190-240",
+      "implemented": true,
+      "code_location": {
+        "file": "vllm/entrypoints/openai/api_server.py",
+        "line": "1310-1336",
+        "handler": "update_conversation"
+      }
+    },
+    "DELETE /v1/conversations/{conversation_id}": {
+      "spec_reference": "DOC_conversations.md:240-280",
+      "implemented": true,
+      "code_location": {
+        "file": "vllm/entrypoints/openai/api_server.py",
+        "line": "1339-1361",
+        "handler": "delete_conversation"
+      }
+    },
+    "GET /v1/conversations/{conversation_id}/items": {
+      "spec_reference": "DOC_conversations.md:280-360",
+      "implemented": true,
+      "code_location": {
+        "file": "vllm/entrypoints/openai/api_server.py",
+        "line": "1364-1399",
+        "handler": "list_conversation_items"
+      }
+    },
+    "POST /v1/conversations/{conversation_id}/items": {
+      "spec_reference": "DOC_conversations.md:360-440",
+      "implemented": true,
+      "code_location": {
+        "file": "vllm/entrypoints/openai/api_server.py",
+        "line": "1402-1434",
+        "handler": "create_conversation_items"
+      }
+    },
+    "GET /v1/conversations/{conversation_id}/items/{item_id}": {
+      "spec_reference": "DOC_conversations.md:440-500",
+      "implemented": true,
+      "code_location": {
+        "file": "vllm/entrypoints/openai/api_server.py",
+        "line": "1437-1458",
+        "handler": "get_conversation_item"
+      }
+    },
+    "DELETE /v1/conversations/{conversation_id}/items/{item_id}": {
+      "spec_reference": "DOC_conversations.md:500-560",
+      "implemented": true,
+      "code_location": {
+        "file": "vllm/entrypoints/openai/api_server.py",
+        "line": "1461-1486",
+        "handler": "delete_conversation_item"
+      }
+    }
+  },
+  "request_parameters": {
+    "ResponsesRequest": {
+      "background": {
+        "spec_ref": "DOC_responses.md:208-217",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "implemented": true,
+        "code_location": "protocol.py:341",
+        "test_values": [
+          true,
+          false
+        ]
+      },
+      "conversation": {
+        "spec_ref": "DOC_responses.md:219-231",
+        "type": "string | object",
+        "required": false,
+        "default": null,
+        "implemented": true,
+        "code_location": "protocol.py:357",
+        "test_values": [
+          null,
+          "conv_123",
+          {
+            "id": "conv_123"
+          }
+        ]
+      },
+      "include": {
+        "spec_ref": "DOC_responses.md:232-246",
+        "type": "array",
+        "required": false,
+        "implemented": true,
+        "code_location": "protocol.py:367",
+        "supported_values": [
+          "web_search_call.action.sources",
+          "code_interpreter_call.outputs",
+          "computer_call_output.output.image_url",
+          "file_search_call.results",
+          "message.input_image.image_url",
+          "message.output_text.logprobs",
+          "reasoning.encrypted_content"
+        ],
+        "missing_values": [],
+        "compliance_score": 100
+      },
+      "input": {
+        "spec_ref": "DOC_responses.md:248-264",
+        "type": "string | array",
+        "required": false,
+        "implemented": true,
+        "code_location": "protocol.py:374",
+        "test_values": [
+          "Hello",
+          [
+            {
+              "type": "input_text",
+              "text": "Hello"
+            }
+          ]
+        ]
+      },
+      "instructions": {
+        "spec_ref": "DOC_responses.md:266-277",
+        "type": "string",
+        "required": false,
+        "implemented": true,
+        "code_location": "protocol.py:383",
+        "test_values": [
+          "You are a helpful assistant"
+        ]
+      },
+      "max_output_tokens": {
+        "spec_ref": "DOC_responses.md:278-284",
+        "type": "integer",
+        "required": false,
+        "implemented": true,
+        "code_location": "protocol.py:386",
+        "test_values": [
+          100,
+          1000,
+          4096
+        ]
+      },
+      "max_tool_calls": {
+        "spec_ref": "DOC_responses.md:286-292",
+        "type": "integer",
+        "required": false,
+        "implemented": true,
+        "code_location": "protocol.py:388",
+        "test_values": [
+          1,
+          5,
+          10
+        ]
+      },
+      "metadata": {
+        "spec_ref": "DOC_responses.md:294-305",
+        "type": "map",
+        "required": false,
+        "implemented": true,
+        "code_location": "protocol.py:391",
+        "test_values": [
+          {
+            "key": "value"
+          }
+        ]
+      },
+      "model": {
+        "spec_ref": "DOC_responses.md:307-316",
+        "type": "string",
+        "required": false,
+        "implemented": true,
+        "code_location": "protocol.py:398",
+        "test_values": [
+          "gpt-4o",
+          "gpt-4o-mini"
+        ]
+      },
+      "parallel_tool_calls": {
+        "spec_ref": "DOC_responses.md:318-326",
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "implemented": true,
+        "code_location": "protocol.py:401",
+        "test_values": [
+          true,
+          false
+        ]
+      },
+      "previous_response_id": {
+        "spec_ref": "DOC_responses.md:328-336",
+        "type": "string",
+        "required": false,
+        "implemented": true,
+        "code_location": "protocol.py:404",
+        "test_values": [
+          "resp_123"
+        ]
+      },
+      "prompt": {
+        "spec_ref": "DOC_responses.md:338-346",
+        "type": "object",
+        "required": false,
+        "implemented": false,
+        "compliance_score": 0
+      },
+      "prompt_cache_key": {
+        "spec_ref": "DOC_responses.md:349-355",
+        "type": "string",
+        "required": false,
+        "implemented": true,
+        "code_location": "protocol.py:413",
+        "vllm_name": "cache_salt",
+        "test_values": [
+          "cache_key_123"
+        ]
+      },
+      "prompt_cache_retention": {
+        "spec_ref": "DOC_responses.md:357-363",
+        "type": "string",
+        "required": false,
+        "implemented": false,
+        "compliance_score": 0
+      },
+      "reasoning": {
+        "spec_ref": "DOC_responses.md:365-376",
+        "type": "object",
+        "required": false,
+        "implemented": true,
+        "code_location": "protocol.py:418",
+        "test_values": [
+          {
+            "effort": "medium"
+          }
+        ]
+      },
+      "safety_identifier": {
+        "spec_ref": "DOC_responses.md:378-385",
+        "type": "string",
+        "required": false,
+        "implemented": false,
+        "compliance_score": 0
+      },
+      "service_tier": {
+        "spec_ref": "DOC_responses.md:387-402",
+        "type": "string",
+        "required": false,
+        "default": "auto",
+        "implemented": true,
+        "code_location": "protocol.py:428",
+        "test_values": [
+          "auto",
+          "default"
+        ]
+      },
+      "store": {
+        "spec_ref": "DOC_responses.md:404-413",
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "implemented": true,
+        "code_location": "protocol.py:441",
+        "test_values": [
+          true,
+          false
+        ]
+      },
+      "stream": {
+        "spec_ref": "DOC_responses.md:415-426",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "implemented": true,
+        "code_location": "protocol.py:443",
+        "test_values": [
+          true,
+          false
+        ]
+      },
+      "stream_options": {
+        "spec_ref": "DOC_responses.md:428-438",
+        "type": "object",
+        "required": false,
+        "implemented": true,
+        "code_location": "protocol.py:447",
+        "test_values": [
+          {
+            "include_usage": true
+          }
+        ]
+      },
+      "temperature": {
+        "spec_ref": "DOC_responses.md:440-449",
+        "type": "number",
+        "required": false,
+        "default": 1.0,
+        "implemented": true,
+        "code_location": "protocol.py:451",
+        "test_values": [
+          0.0,
+          0.5,
+          1.0,
+          2.0
+        ]
+      },
+      "text": {
+        "spec_ref": "DOC_responses.md:451-463",
+        "type": "object",
+        "required": false,
+        "implemented": true,
+        "code_location": "protocol.py:455",
+        "test_values": [
+          {
+            "format": {
+              "type": "json_object"
+            }
+          }
+        ]
+      },
+      "tool_choice": {
+        "spec_ref": "DOC_responses.md:465-475",
+        "type": "string | object",
+        "required": false,
+        "implemented": true,
+        "code_location": "protocol.py:463",
+        "test_values": [
+          "auto",
+          "none",
+          "required"
+        ]
+      },
+      "tools": {
+        "spec_ref": "DOC_responses.md:477-501",
+        "type": "array",
+        "required": false,
+        "implemented": true,
+        "code_location": "protocol.py:471",
+        "test_values": [
+          [
+            {
+              "type": "function",
+              "function": {
+                "name": "test"
+              }
+            }
+          ]
+        ]
+      },
+      "top_logprobs": {
+        "spec_ref": "DOC_responses.md:503-509",
+        "type": "integer",
+        "required": false,
+        "implemented": true,
+        "code_location": "protocol.py:481",
+        "test_values": [
+          0,
+          5,
+          20
+        ]
+      },
+      "top_p": {
+        "spec_ref": "DOC_responses.md:511-525",
+        "type": "number",
+        "required": false,
+        "default": 1.0,
+        "implemented": true,
+        "code_location": "protocol.py:483",
+        "test_values": [
+          0.1,
+          0.5,
+          1.0
+        ]
+      },
+      "truncation": {
+        "spec_ref": "DOC_responses.md:527-541",
+        "type": "string",
+        "required": false,
+        "default": "disabled",
+        "implemented": true,
+        "code_location": "protocol.py:486",
+        "test_values": [
+          "auto",
+          "disabled"
+        ]
+      },
+      "user": {
+        "spec_ref": "DOC_responses.md:543-553",
+        "type": "string",
+        "required": false,
+        "deprecated": true,
+        "implemented": true,
+        "code_location": "protocol.py:491",
+        "test_values": [
+          "user_123"
+        ]
+      }
+    }
+  },
+  "streaming_events": {
+    "response.created": {
+      "spec_ref": "DOC_streaming_events.md:304-367",
+      "implemented": true,
+      "code_location": "serving_responses.py:_build_response_created_event",
+      "required_fields": [
+        "type",
+        "response",
+        "sequence_number"
+      ],
+      "test_priority": "critical",
+      "compliance_score": 100
+    },
+    "response.in_progress": {
+      "spec_ref": "DOC_streaming_events.md:369-432",
+      "implemented": false,
+      "required_fields": [
+        "type",
+        "response",
+        "sequence_number"
+      ],
+      "test_priority": "low",
+      "compliance_score": 0
+    },
+    "response.completed": {
+      "spec_ref": "DOC_streaming_events.md:434-514",
+      "implemented": true,
+      "code_location": "serving_responses.py:_build_response_completed_event",
+      "required_fields": [
+        "type",
+        "response",
+        "sequence_number"
+      ],
+      "test_priority": "critical",
+      "compliance_score": 100
+    },
+    "response.failed": {
+      "spec_ref": "DOC_streaming_events.md:516-577",
+      "implemented": true,
+      "code_location": "serving_responses.py:_build_response_failed_event",
+      "required_fields": [
+        "type",
+        "response",
+        "sequence_number"
+      ],
+      "test_priority": "high",
+      "compliance_score": 100
+    },
+    "response.incomplete": {
+      "spec_ref": "DOC_streaming_events.md:579-640",
+      "implemented": true,
+      "required_fields": [
+        "type",
+        "response",
+        "sequence_number"
+      ],
+      "test_priority": "medium",
+      "compliance_score": 100,
+      "code_location": "vllm/entrypoints/openai/serving_responses.py:3396-3458"
+    },
+    "response.output_item.added": {
+      "spec_ref": "DOC_streaming_events.md:642-687",
+      "implemented": true,
+      "code_location": "serving_responses.py:_build_output_item_added_event",
+      "required_fields": [
+        "type",
+        "item",
+        "output_index",
+        "sequence_number"
+      ],
+      "test_priority": "high",
+      "compliance_score": 100
+    },
+    "response.output_item.done": {
+      "spec_ref": "DOC_streaming_events.md:689-740",
+      "implemented": true,
+      "code_location": "serving_responses.py:_build_output_item_done_event",
+      "required_fields": [
+        "type",
+        "item",
+        "output_index",
+        "sequence_number"
+      ],
+      "test_priority": "high",
+      "compliance_score": 100
+    },
+    "response.content_part.added": {
+      "spec_ref": "DOC_streaming_events.md:742-799",
+      "implemented": true,
+      "code_location": "serving_responses.py:_build_content_part_added_event",
+      "required_fields": [
+        "type",
+        "part",
+        "item_id",
+        "output_index",
+        "content_index",
+        "sequence_number"
+      ],
+      "test_priority": "high",
+      "compliance_score": 100
+    },
+    "response.content_part.done": {
+      "spec_ref": "DOC_streaming_events.md:801-858",
+      "implemented": true,
+      "code_location": "serving_responses.py:_build_content_part_done_event",
+      "required_fields": [
+        "type",
+        "part",
+        "item_id",
+        "output_index",
+        "content_index",
+        "sequence_number"
+      ],
+      "test_priority": "high",
+      "compliance_score": 100
+    },
+    "response.output_text.delta": {
+      "spec_ref": "DOC_streaming_events.md:860-919",
+      "implemented": true,
+      "required_fields": [
+        "type",
+        "delta",
+        "item_id",
+        "output_index",
+        "content_index",
+        "sequence_number"
+      ],
+      "test_priority": "critical",
+      "compliance_score": 100,
+      "note": "Critical for OpenAI SDK compatibility",
+      "code_location": "vllm/entrypoints/openai/serving_responses.py:_process_harmony_streaming_events"
+    },
+    "response.output_text.done": {
+      "spec_ref": "DOC_streaming_events.md:921-980",
+      "implemented": true,
+      "required_fields": [
+        "type",
+        "text",
+        "item_id",
+        "output_index",
+        "content_index",
+        "sequence_number"
+      ],
+      "test_priority": "critical",
+      "compliance_score": 100,
+      "code_location": "vllm/entrypoints/openai/serving_responses.py:_process_harmony_streaming_events"
+    },
+    "response.refusal.delta": {
+      "spec_ref": "DOC_streaming_events.md:982-1033",
+      "implemented": false,
+      "required_fields": [
+        "type",
+        "delta",
+        "item_id",
+        "output_index",
+        "content_index",
+        "sequence_number"
+      ],
+      "test_priority": "medium",
+      "compliance_score": 0
+    },
+    "response.refusal.done": {
+      "spec_ref": "DOC_streaming_events.md:1035-1086",
+      "implemented": false,
+      "required_fields": [
+        "type",
+        "refusal",
+        "item_id",
+        "output_index",
+        "content_index",
+        "sequence_number"
+      ],
+      "test_priority": "medium",
+      "compliance_score": 0
+    },
+    "response.function_call_arguments.delta": {
+      "spec_ref": "DOC_streaming_events.md:1088-1132",
+      "implemented": true,
+      "code_location": "serving_responses.py:_build_tool_call_delta_event",
+      "required_fields": [
+        "type",
+        "delta",
+        "item_id",
+        "output_index",
+        "sequence_number"
+      ],
+      "test_priority": "high",
+      "compliance_score": 0,
+      "known_issues": [
+        "BUG #5 (CRITICAL): delta.content must be array of strings, not objects",
+        "Current implementation sends ResponseToolCallDeltaContent objects",
+        "Causes Codex client error: 'invalid type: map, expected a string'",
+        "See: BUG_5_TOOL_CALL_DELTA_FORMAT.md and BUG_5_ANALYSIS_FROM_CODEX_LOGS.md",
+        "Fix required in: protocol.py:2616 and serving_responses.py:664-686"
+      ],
+      "status": "BROKEN - Bug #5 not fixed"
+    },
+    "response.function_call_arguments.done": {
+      "spec_ref": "DOC_streaming_events.md:1134-1183",
+      "implemented": true,
+      "code_location": "serving_responses.py:_build_tool_call_done_event",
+      "required_fields": [
+        "type",
+        "arguments",
+        "name",
+        "item_id",
+        "output_index",
+        "sequence_number"
+      ],
+      "test_priority": "high",
+      "compliance_score": 100
+    },
+    "response.tool_call.delta": {
+      "spec_ref": "API_response_HOWTO.md:711-719",
+      "implemented": true,
+      "code_location": "protocol.py:2603 and serving_responses.py:675-695",
+      "required_fields": [
+        "type",
+        "response",
+        "delta",
+        "sequence_number"
+      ],
+      "test_priority": "critical",
+      "compliance_score": 0,
+      "known_issues": [
+        "BUG #5 (CRITICAL): delta.content must be array of strings, not objects",
+        "Current: delta: dict[str, list[ResponseToolCallDeltaContent]] (protocol.py:2616)",
+        "Required: delta: dict[str, list[str]]",
+        "Causes Codex client error: 'invalid type: map, expected a string at line 1 column 101'",
+        "vLLM sends: {\"delta\":{\"content\":[\"[{\\\"type\\\":\\\"tool_call\\\",...}]\"]}} - string with array wrapper",
+        "Should send: {\"delta\":{\"content\":[\"{\\\"type\\\":\\\"tool_call\\\",...}\"]}} - string with object only",
+        "See: BUG_5_TOOL_CALL_DELTA_FORMAT.md and BUG_5_ANALYSIS_FROM_CODEX_LOGS.md"
+      ],
+      "status": "BROKEN - Bug #5 not fixed",
+      "note": "This event is actually used in production code (confirmed by Codex logs), different from response.function_call_arguments.delta"
+    },
+    "response.reasoning_text.delta": {
+      "spec_ref": "DOC_streaming_events.md:1647-1698",
+      "implemented": true,
+      "code_location": "serving_responses.py:_build_reasoning_delta_event",
+      "required_fields": [
+        "type",
+        "delta",
+        "item_id",
+        "output_index",
+        "content_index",
+        "sequence_number"
+      ],
+      "test_priority": "high",
+      "compliance_score": 100,
+      "fixes": [
+        "2025-11-24: Fixed delta format (string instead of object)"
+      ]
+    },
+    "response.reasoning_text.done": {
+      "spec_ref": "DOC_streaming_events.md:1700-1751",
+      "implemented": true,
+      "code_location": "serving_responses.py:_build_reasoning_done_event",
+      "required_fields": [
+        "type",
+        "text",
+        "item_id",
+        "output_index",
+        "content_index",
+        "sequence_number"
+      ],
+      "test_priority": "high",
+      "compliance_score": 100
+    },
+    "response.reasoning_summary_text.delta": {
+      "spec_ref": "DOC_streaming_events.md:1541-1592",
+      "implemented": true,
+      "code_location": "serving_responses.py:_generate_reasoning_summary_events",
+      "required_fields": [
+        "type",
+        "delta",
+        "item_id",
+        "output_index",
+        "summary_index",
+        "sequence_number"
+      ],
+      "test_priority": "medium",
+      "compliance_score": 100,
+      "fixes": [
+        "2025-11-24: Fixed delta format (string instead of object)"
+      ]
+    },
+    "response.reasoning_summary_text.done": {
+      "spec_ref": "DOC_streaming_events.md:1594-1645",
+      "implemented": true,
+      "required_fields": [
+        "type",
+        "text",
+        "item_id",
+        "output_index",
+        "summary_index",
+        "sequence_number"
+      ],
+      "compliance_score": 100,
+      "code_location": "vllm/entrypoints/openai/serving_responses.py:_generate_reasoning_summary_events"
+    },
+    "response.reasoning_summary_part.added": {
+      "spec_ref": "DOC_streaming_events.md:1425-1484",
+      "implemented": true,
+      "required_fields": [
+        "type",
+        "item_id",
+        "output_index",
+        "summary_index",
+        "part",
+        "sequence_number"
+      ],
+      "compliance_score": 100,
+      "code_location": "vllm/entrypoints/openai/serving_responses.py:_generate_reasoning_summary_events"
+    },
+    "response.reasoning_summary_part.done": {
+      "spec_ref": "DOC_streaming_events.md:1485-1540",
+      "implemented": true,
+      "required_fields": [
+        "type",
+        "item_id",
+        "output_index",
+        "summary_index",
+        "part",
+        "sequence_number"
+      ],
+      "compliance_score": 100,
+      "code_location": "vllm/entrypoints/openai/serving_responses.py:_generate_reasoning_summary_events"
+    },
+    "response.queued": {
+      "spec_ref": "DOC_streaming_events.md:2528-2565",
+      "implemented": true,
+      "required_fields": [
+        "type",
+        "response",
+        "sequence_number"
+      ],
+      "test_priority": "low",
+      "compliance_score": 100,
+      "code_location": "vllm/entrypoints/openai/serving_responses.py:3396-3458"
+    },
+    "error": {
+      "spec_ref": "DOC_streaming_events.md:2657-2701",
+      "implemented": true,
+      "code_location": "api_server.py:error_handling",
+      "required_fields": [
+        "type",
+        "code",
+        "message",
+        "sequence_number"
+      ],
+      "test_priority": "high",
+      "compliance_score": 90
+    },
+    "response.file_search_call.in_progress": {
+      "implemented": true,
+      "code_location": "vllm/entrypoints/openai/serving_responses.py:_build_file_search_call_events",
+      "compliance_score": 100
+    },
+    "response.file_search_call.searching": {
+      "implemented": true,
+      "code_location": "vllm/entrypoints/openai/serving_responses.py:_build_file_search_call_events",
+      "compliance_score": 100
+    },
+    "response.file_search_call.completed": {
+      "implemented": true,
+      "code_location": "vllm/entrypoints/openai/serving_responses.py:_build_file_search_call_events",
+      "compliance_score": 100
+    },
+    "response.image_generation_call.in_progress": {
+      "implemented": true,
+      "code_location": "vllm/entrypoints/openai/serving_responses.py:_build_image_generation_call_events",
+      "compliance_score": 100
+    },
+    "response.image_generation_call.generating": {
+      "implemented": true,
+      "code_location": "vllm/entrypoints/openai/serving_responses.py:_build_image_generation_call_events",
+      "compliance_score": 100
+    },
+    "response.image_generation_call.completed": {
+      "implemented": true,
+      "code_location": "vllm/entrypoints/openai/serving_responses.py:_build_image_generation_call_events",
+      "compliance_score": 100
+    },
+    "response.image_generation_call.partial_image": {
+      "implemented": true,
+      "code_location": "vllm/entrypoints/openai/serving_responses.py:_build_image_generation_call_events",
+      "compliance_score": 100
+    }
+  },
+  "summary": {
+    "total_endpoints": 8,
+    "implemented_endpoints": 5,
+    "total_parameters": 26,
+    "implemented_parameters": 21,
+    "total_events": 21,
+    "implemented_events": 13,
+    "overall_compliance_score": 68,
+    "critical_bugs": [
+      "BUG #5: response.tool_call.delta sends objects instead of strings in delta.content"
+    ],
+    "critical_missing": [],
+    "high_priority_missing": [
+      "prompt parameter",
+      "safety_identifier parameter"
+    ],
+    "notes": [
+      "Bug #5 breaks streaming tool calls for OpenAI SDK and Codex clients",
+      "response.output_text.delta and response.output_text.done are now implemented (was in critical_missing before)",
+      "response.incomplete is now implemented (was in high_priority_missing before)"
+    ]
+  }
+}

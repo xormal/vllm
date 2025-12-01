@@ -1,0 +1,33 @@
+name: OpenAI API Compliance Check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  compliance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate spec mapping
+        run: python scripts/validate_spec_mapping.py
+
+      - name: Run offline compliance checker
+        run: python scripts/check_openai_compliance.py
+
+      - name: Upload compliance report
+        uses: actions/upload-artifact@v4
+        with:
+          name: compliance-report
+          path: compliance_reports/

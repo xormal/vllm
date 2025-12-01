@@ -1,0 +1,42 @@
+name: Spec Change Alert
+
+on:
+  push:
+    paths:
+      - "DOC_responses.md"
+      - "DOC_streaming_events.md"
+
+jobs:
+  alert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Monitor specification changes
+        run: python scripts/monitor_spec_changes.py
+
+      - name: Create alert issue
+        if: ${{ exists('.spec_change_summary.json') }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = JSON.parse(fs.readFileSync('.spec_change_summary.json', 'utf8'));
+            let body = `Detected updates to OpenAI specification files:\n\n`;
+            summary.forEach(change => {
+              body += `- ${change.file}: ${change.previous_hash} → ${change.new_hash}\n`;
+            });
+            body += `\nPlease review DOC_responses.md and DOC_streaming_events.md and update SPEC_TO_CODE_MAPPING.json if needed.`;
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '⚠️ OpenAI Spec Update Detected',
+              body,
+              labels: ['spec-update', 'priority-high']
+            });

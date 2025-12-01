@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "enforce": true,
+  "request_limits": {
+    "enabled": true,
+    "per_minute": 60,
+    "per_hour": 1000
+  },
+  "token_limits": {
+    "enabled": true,
+    "per_minute": 100000
+  }
+}
