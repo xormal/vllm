@@ -1685,6 +1685,133 @@ class OpenAIServingResponses(OpenAIServing):
         except Exception as e:
             return self.create_error_response(str(e))
 
+    async def tokenize_responses(
+        self,
+        request: ResponsesRequest,
+        raw_request: Request | None = None,
+    ) -> ResponsesResponse | ErrorResponse:
+        error_check_ret = await self._check_model(request)
+        if error_check_ret is not None:
+            logger.error("Error with model %s", error_check_ret)
+            return error_check_ret
+        maybe_validation_error = self._validate_create_responses_input(request)
+        if maybe_validation_error is not None:
+            return maybe_validation_error
+
+        if self.engine_client.errored:
+            raise self.engine_client.dead_error
+
+        self._apply_prompt_cache_key(request)
+        try:
+            self._normalize_request_tools(request)
+        except ValueError as exc:
+            return self.create_error_response(str(exc))
+
+        prev_response_id = request.previous_response_id
+        if prev_response_id is not None:
+            prev_response = await self._get_stored_response(prev_response_id)
+            if prev_response is None:
+                return self._make_not_found_error(prev_response_id)
+        else:
+            prev_response = None
+
+        try:
+            lora_request = self._maybe_get_adapters(request)
+            model_name = self.models.model_name(lora_request)
+            tokenizer = await self.engine_client.get_tokenizer()
+
+            if self.use_harmony:
+                messages, _, engine_prompts = self._make_request_with_harmony(
+                    request, prev_response
+                )
+            else:
+                messages, _, engine_prompts = await self._make_request(
+                    request, prev_response, tokenizer
+                )
+
+        except (
+            ValueError,
+            TypeError,
+            RuntimeError,
+            jinja2.TemplateError,
+            NotImplementedError,
+        ) as exc:
+            logger.exception("Error in preprocessing prompt inputs")
+            return self.create_error_response(f"{exc} {exc.__cause__}")
+
+        header_request_id = None
+        if raw_request is not None:
+            header_request_id = raw_request.headers.get("X-Request-Id")
+        mismatch_error = self._maybe_check_request_id(header_request_id, request)
+        if mismatch_error is not None:
+            return mismatch_error
+
+        if not engine_prompts:
+            return self.create_error_response("No prompts generated from request.")
+
+        if request.enable_response_messages and not self.use_harmony:
+            return self.create_error_response(
+                "enable_response_messages is currently only supported for gpt-oss"
+            )
+
+        total_prompt_tokens = 0
+        sampling_params: SamplingParams | None = None
+        for engine_prompt in engine_prompts:
+            maybe_error = self._validate_generator_input(engine_prompt)
+            if maybe_error is not None:
+                return maybe_error
+
+            prompt_len = len(engine_prompt["prompt_token_ids"])
+            total_prompt_tokens += prompt_len
+
+            prompt_length_error = self._validate_request_size(
+                request, prompt_token_count=prompt_len
+            )
+            if prompt_length_error is not None:
+                return prompt_length_error
+
+            if sampling_params is None:
+                default_max_tokens = self.max_model_len - prompt_len
+                sampling_params = request.to_sampling_params(
+                    default_max_tokens, self.default_sampling_params
+                )
+
+        if sampling_params is None:
+            sampling_params = request.to_sampling_params(
+                self.max_model_len, self.default_sampling_params
+            )
+
+        created_time = int(time.time())
+        usage = ResponseUsage(
+            input_tokens=total_prompt_tokens,
+            output_tokens=0,
+            total_tokens=total_prompt_tokens,
+            input_tokens_details=InputTokensDetails(
+                cached_tokens=0,
+                input_tokens_per_turn=[total_prompt_tokens]
+                if total_prompt_tokens
+                else [],
+                cached_tokens_per_turn=[0] if total_prompt_tokens else [],
+            ),
+            output_tokens_details=OutputTokensDetails(),
+        )
+
+        input_messages = (
+            messages if self.use_harmony and request.enable_response_messages else None
+        )
+
+        return ResponsesResponse.from_request(
+            request,
+            sampling_params,
+            model_name=model_name,
+            created_time=created_time,
+            output=[],
+            status="completed",
+            usage=usage,
+            input_messages=input_messages,
+            output_messages=None,
+        )
+
     async def _make_request(
         self,
         request: ResponsesRequest,
@@ -2834,9 +2961,17 @@ class OpenAIServingResponses(OpenAIServing):
         if hasattr(item, "model_dump"):
             return item.model_dump(exclude_none=True)
         if isinstance(item, dict):
-            return deepcopy(item)
+            try:
+                return deepcopy(item)
+            except Exception:
+                # Fall back to a shallow copy when deep copy fails (e.g., unpickleable
+                # values from validation internals).
+                return copy(item)
         if hasattr(item, "__dict__"):
-            return deepcopy(item.__dict__)
+            try:
+                return deepcopy(item.__dict__)
+            except Exception:
+                return copy(item.__dict__)
         return {"value": item}
 
     async def list_response_input_items(

@@ -976,6 +976,75 @@ async def create_responses(request: ResponsesRequest, raw_request: Request):
     return response
 
 
+@router.post(
+    "/v1/responses/compact",
+    dependencies=[Depends(validate_json_request)],
+    responses={
+        HTTPStatus.OK.value: {"content": {"text/event-stream": {}}},
+        HTTPStatus.BAD_REQUEST.value: {"model": ErrorResponse},
+        HTTPStatus.NOT_FOUND.value: {"model": ErrorResponse},
+        HTTPStatus.INTERNAL_SERVER_ERROR.value: {"model": ErrorResponse},
+    },
+)
+@with_cancellation
+async def create_responses_compact(
+    request: ResponsesRequest,
+    raw_request: Request,
+):
+    if not request.instructions:
+        request.instructions = "Summarize conversation history to reduce context size."
+    return await create_responses(request, raw_request)
+
+
+@router.post(
+    "/v1/responses/tokenize",
+    dependencies=[Depends(validate_json_request)],
+    responses={
+        HTTPStatus.OK.value: {"model": ResponsesResponse},
+        HTTPStatus.BAD_REQUEST.value: {"model": ErrorResponse},
+        HTTPStatus.NOT_FOUND.value: {"model": ErrorResponse},
+        HTTPStatus.INTERNAL_SERVER_ERROR.value: {"model": ErrorResponse},
+    },
+)
+@with_cancellation
+async def tokenize_responses(
+    request: ResponsesRequest,
+    raw_request: Request,
+):
+    handler = responses(raw_request)
+    if handler is None:
+        return _json_error_response(
+            base(raw_request).create_error_response(
+                message="The model does not support Responses API"
+            )
+        )
+    if isinstance(request.input, list):
+        request.input = _attach_item_ids(request.input)
+    request.stream = False
+    try:
+        result = await handler.tokenize_responses(request, raw_request)
+    except Exception as exc:
+        logger.exception("Exception in tokenize_responses handler:")
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value, detail=str(exc)
+        ) from exc
+
+    response = _finalize_responses_result(
+        result,
+        stream=False,
+        request_id=request.request_id,
+        handler=handler,
+    )
+    await _apply_standard_response_headers(
+        response,
+        handler,
+        raw_request=raw_request,
+        request_id=request.request_id,
+        user_id=request.user,
+    )
+    return response
+
+
 def _attach_item_ids(items: list[Any]) -> list[Any]:
     attached: list[Any] = []
     for index, item in enumerate(items):

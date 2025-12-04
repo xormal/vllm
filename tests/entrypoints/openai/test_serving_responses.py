@@ -199,6 +199,38 @@ def test_extract_tool_types(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("VLLM_GPT_OSS_SYSTEM_TOOL_MCP_LABELS", "container")
     assert extract_tool_types(tools) == {"local_shell", "auto", "container"}
 
+
+@pytest.mark.asyncio
+async def test_tokenize_responses_counts_prompt_tokens():
+    serving = _build_serving_responses_instance()
+    serving.engine_client.errored = False
+    serving.max_model_len = 128
+    serving.use_harmony = False
+    serving.default_sampling_params = {}
+
+    request = ResponsesRequest(model="gpt-test", input="hello")
+
+    serving._check_model = AsyncMock(return_value=None)
+    serving._validate_create_responses_input = MagicMock(return_value=None)
+    serving._apply_prompt_cache_key = MagicMock()
+    serving._normalize_request_tools = MagicMock()
+    serving._maybe_get_adapters = MagicMock(return_value=None)
+    serving.models.model_name = MagicMock(return_value="gpt-test")
+    serving.engine_client.get_tokenizer = AsyncMock(return_value=MagicMock())
+    engine_prompt = EngineTokensPrompt(prompt_token_ids=[1, 2, 3])
+    serving._make_request = AsyncMock(return_value=([], [], [engine_prompt]))
+    serving._maybe_check_request_id = MagicMock(return_value=None)
+    serving._validate_generator_input = MagicMock(return_value=None)
+    serving._validate_request_size = MagicMock(return_value=None)
+
+    response = await serving.tokenize_responses(request, None)
+
+    assert isinstance(response, ResponsesResponse)
+    assert response.usage.input_tokens == 3
+    assert response.usage.total_tokens == 3
+    assert response.usage.output_tokens == 0
+    assert response.output == []
+
     # code_interpreter and web_search_preview are allowed,
     # they would be extracted
     monkeypatch.setenv(
@@ -707,6 +739,29 @@ async def test_list_response_input_items_returns_items():
     assert payload["object"] == "list"
     assert len(payload["data"]) == 2
     assert payload["data"][0]["content"][0]["text"] == "Hello"
+
+
+def test_normalize_input_items_handles_unpickleable_values():
+    class Unpickleable:
+        def __reduce_ex__(self, _protocol: int):
+            raise TypeError("no pickle")
+
+    instance = _build_serving_responses_instance()
+    normalized = instance._normalize_input_items(
+        [
+            {
+                "type": "message",
+                "role": "user",
+                "content": [{"type": "input_text", "text": "Hello"}],
+                "extra": Unpickleable(),
+            }
+        ]
+    )
+
+    assert normalized
+    assert normalized[0]["role"] == "user"
+    assert normalized[0]["content"][0]["text"] == "Hello"
+    assert "id" in normalized[0]
 
 
 @pytest.mark.asyncio
