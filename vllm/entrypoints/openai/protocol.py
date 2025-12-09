@@ -2535,6 +2535,7 @@ class ResponsesResponse(OpenAIBaseModel):
     tool_choice: ToolChoice
     tools: list[Tool]
     top_p: float
+    seed: int | None = Field(None, ge=_LONG_INFO.min, le=_LONG_INFO.max)
     background: bool
     max_output_tokens: int
     max_tool_calls: int | None = None
@@ -2604,6 +2605,7 @@ class ResponsesResponse(OpenAIBaseModel):
             tool_choice=request.tool_choice,
             tools=request.tools,
             top_p=sampling_params.top_p,
+            seed=sampling_params.seed,
             background=request.background,
             max_output_tokens=sampling_params.max_tokens,
             max_tool_calls=request.max_tool_calls,

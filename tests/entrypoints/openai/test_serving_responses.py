@@ -951,6 +951,23 @@ async def test_store_response_roundtrip():
     assert stored is response
 
 
+def test_responses_response_includes_seed():
+    request = ResponsesRequest(model="test-model", input="hi", seed=42)
+    sampling = request.to_sampling_params(default_max_tokens=4)
+
+    response = ResponsesResponse.from_request(
+        request,
+        sampling,
+        model_name="test-model",
+        created_time=0,
+        output=[],
+        status="completed",
+        usage=None,
+    )
+
+    assert response.seed == 42
+
+
 @pytest.mark.asyncio
 async def test_store_response_ttl_eviction():
     instance = _build_serving_responses_instance(responses_store_ttl=0.1)
