@@ -167,6 +167,28 @@ def test_enable_auto_choice_fails_with_enable_reasoning(serve_parser):
         validate_parsed_serve_args(args)
 
 
+def test_mistral_compat_applies_defaults(serve_parser):
+    args = serve_parser.parse_args(args=["--mistral-compat"])
+    validate_parsed_serve_args(args)
+
+    assert args.tool_call_parser == "mistral"
+    assert args.enable_auto_tool_choice is True
+    assert args.chat_template == (
+        VLLM_PATH / "examples" / "tool_chat_template_mistral.jinja"
+    ).as_posix()
+    assert args.chat_template_content_format == "openai"
+
+
+def test_mistral_compat_respects_user_tool_parser(serve_parser):
+    args = serve_parser.parse_args(
+        args=["--mistral-compat", "--tool-call-parser", "openai"],
+    )
+    validate_parsed_serve_args(args)
+
+    assert args.tool_call_parser == "openai"
+    assert args.enable_auto_tool_choice is True
+
+
 def test_passes_with_reasoning_parser(serve_parser):
     """Ensure validation passes if reasoning is enabled
     with a reasoning parser"""

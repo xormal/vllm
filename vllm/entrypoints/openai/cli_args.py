@@ -11,6 +11,7 @@ import json
 import ssl
 from collections.abc import Sequence
 from dataclasses import field
+from pathlib import Path
 from typing import Literal
 
 from pydantic.dataclasses import dataclass
@@ -264,6 +265,8 @@ class FrontendArgs:
     If set to True, only enable the Tokens In<>Out endpoint. 
     This is intended for use in a Disaggregated Everything setup.
     """
+    mistral_compat: bool = False
+    """Enable Mistral/Devstral-friendly defaults (tool parser, template)."""
 
     @staticmethod
     def add_cli_args(parser: FlexibleArgumentParser) -> FlexibleArgumentParser:
@@ -350,10 +353,59 @@ def make_arg_parser(parser: FlexibleArgumentParser) -> FlexibleArgumentParser:
     return parser
 
 
+def _apply_mistral_compat_defaults(args: argparse.Namespace) -> None:
+    """Populate sensible defaults when `--mistral-compat` is set.
+
+    The goal is to mirror Mistral/Devstral expectations without requiring
+    the caller to wire all flags manually, while still allowing explicit
+    overrides provided by the user.
+    """
+
+    if not getattr(args, "mistral_compat", False):
+        return
+
+    defaults_applied: list[str] = []
+
+    if args.tool_call_parser is None:
+        args.tool_call_parser = "mistral"
+        defaults_applied.append("tool_call_parser=mistral")
+
+    if not args.enable_auto_tool_choice:
+        args.enable_auto_tool_choice = True
+        defaults_applied.append("enable_auto_tool_choice=True")
+
+    if args.chat_template is None:
+        default_template = (
+            Path(__file__).resolve().parents[3]
+            / "examples"
+            / "tool_chat_template_mistral.jinja"
+        )
+        if default_template.is_file():
+            args.chat_template = default_template.as_posix()
+            defaults_applied.append(f"chat_template={args.chat_template}")
+        else:
+            logger.warning(
+                "--mistral-compat enabled but default chat template not found at %s",
+                default_template,
+            )
+
+    if args.chat_template_content_format == "auto":
+        args.chat_template_content_format = "openai"
+        defaults_applied.append("chat_template_content_format=openai")
+
+    if defaults_applied:
+        logger.info(
+            "--mistral-compat applied defaults: %s",
+            ", ".join(defaults_applied),
+        )
+
+
 def validate_parsed_serve_args(args: argparse.Namespace):
     """Quick checks for model serve args that raise prior to loading."""
     if hasattr(args, "subparser") and args.subparser != "serve":
         return
+
+    _apply_mistral_compat_defaults(args)
 
     # Ensure that the chat template is valid; raises if it likely isn't
     validate_chat_template(args.chat_template)
