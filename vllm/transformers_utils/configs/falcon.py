@@ -20,7 +20,7 @@
 # limitations under the License.
 """Falcon configuration"""
 
-from transformers.configuration_utils import PretrainedConfig
+from vllm.transformers_utils.compat import PretrainedConfig
 
 
 class RWConfig(PretrainedConfig):

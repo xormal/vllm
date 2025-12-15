@@ -25,7 +25,12 @@ import transformers
 from packaging.version import Version
 from torch import nn
 from transformers import AutoModel
-from transformers.modeling_utils import ALL_ATTENTION_FUNCTIONS
+
+# COMPAT: transformers v4/v5 safe import
+try:
+    from transformers.modeling_utils import ALL_ATTENTION_FUNCTIONS
+except ImportError:  # pragma: no cover
+    ALL_ATTENTION_FUNCTIONS = {}
 
 from vllm.attention import Attention, AttentionType
 from vllm.attention.layers.encoder_only_attention import EncoderOnlyAttention

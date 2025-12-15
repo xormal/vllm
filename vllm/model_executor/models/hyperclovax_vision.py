@@ -15,7 +15,11 @@ from einops import rearrange
 from timm.layers import LayerNorm, LayerNorm2d
 from timm.models.regnet import RegStage
 from transformers import BatchFeature, CLIPVisionConfig, SiglipVisionConfig
-from transformers.modeling_utils import no_init_weights
+# COMPAT: transformers v4/v5 safe import
+try:
+    from transformers.modeling_utils import no_init_weights
+except ImportError:  # pragma: no cover
+    no_init_weights = None
 
 from vllm.config import VllmConfig
 from vllm.config.multimodal import BaseDummyOptions

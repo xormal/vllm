@@ -29,7 +29,7 @@ from typing import Annotated, Any, Literal
 
 import torch
 import torch.nn as nn
-from transformers import PretrainedConfig
+from vllm.transformers_utils.compat import PretrainedConfig
 from transformers.feature_extraction_utils import BatchFeature
 from transformers.models.qwen2_5_omni.configuration_qwen2_5_omni import (
     Qwen2_5OmniConfig,

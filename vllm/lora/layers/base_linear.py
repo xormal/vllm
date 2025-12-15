@@ -3,7 +3,7 @@
 
 
 import torch
-from transformers import PretrainedConfig
+from vllm.transformers_utils.compat import PretrainedConfig
 
 from vllm.config.lora import LoRAConfig
 from vllm.distributed.utils import divide

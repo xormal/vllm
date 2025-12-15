@@ -17,7 +17,8 @@ import jinja2.meta
 import jinja2.nodes
 import jinja2.parser
 import jinja2.sandbox
-import transformers.utils.chat_template_utils as hf_chat_utils
+
+from vllm.transformers_utils.compat import chat_template_utils as hf_chat_utils
 from openai.types.chat import (
     ChatCompletionAssistantMessageParam,
     ChatCompletionContentPartImageParam,
@@ -383,6 +384,8 @@ def _iter_nodes_assign_content_item(root: jinja2.nodes.Node):
 
 def _try_extract_ast(chat_template: str) -> jinja2.nodes.Template | None:
     try:
+        if hf_chat_utils is None:
+            raise ImportError("chat_template_utils unavailable")
         jinja_compiled = hf_chat_utils._compile_jinja_template(chat_template)
         return jinja_compiled.environment.parse(chat_template)
     except Exception:

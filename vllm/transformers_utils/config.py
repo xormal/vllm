@@ -27,7 +27,6 @@ from huggingface_hub.utils import (
 )
 from packaging.version import Version
 from transformers import DeepseekV3Config, GenerationConfig, PretrainedConfig
-from transformers.configuration_utils import ALLOWED_LAYER_TYPES
 from transformers.models.auto.image_processing_auto import get_image_processor_config
 from transformers.models.auto.modeling_auto import (
     MODEL_FOR_CAUSAL_LM_MAPPING_NAMES,
@@ -35,6 +34,8 @@ from transformers.models.auto.modeling_auto import (
 )
 from transformers.models.auto.tokenization_auto import get_tokenizer_config
 from transformers.utils import CONFIG_NAME as HF_CONFIG_NAME
+
+from vllm.transformers_utils.compat import ALLOWED_LAYER_TYPES
 
 from vllm import envs
 from vllm.logger import init_logger
@@ -406,7 +407,10 @@ def patch_rope_parameters(config: PretrainedConfig) -> None:
     """Provide backwards compatibility for RoPE."""
     # Retrieve rope_parameters differently based on Transformers version
     if Version(version("transformers")) >= Version("5.0.0.dev0"):
-        from transformers.modeling_rope_utils import RopeParameters
+        try:  # COMPAT: transformers v4/v5 safe import
+            from transformers.modeling_rope_utils import RopeParameters  # type: ignore
+        except ImportError:  # pragma: no cover
+            RopeParameters = dict  # type: ignore
 
         rope_parameters: RopeParameters | dict[str, RopeParameters] | None = getattr(
             config, "rope_parameters", None
@@ -437,7 +441,8 @@ def patch_rope_parameters(config: PretrainedConfig) -> None:
         return
 
     # Handle nested rope_parameters in interleaved sliding attention models
-    if set(rope_parameters.keys()).issubset(ALLOWED_LAYER_TYPES):
+    allowed_layer_types = ALLOWED_LAYER_TYPES or set(rope_parameters.keys())
+    if set(rope_parameters.keys()).issubset(allowed_layer_types):
         for rope_parameters_layer_type in rope_parameters.values():
             patch_rope_parameters_dict(rope_parameters_layer_type)
     else:

@@ -29,7 +29,7 @@ from itertools import islice
 
 import torch
 from torch import nn
-from transformers.configuration_utils import PretrainedConfig
+from vllm.transformers_utils.compat import PretrainedConfig
 
 from vllm.attention import Attention
 from vllm.compilation.decorators import support_torch_compile

@@ -16,8 +16,16 @@
 # limitations under the License.
 """Qwen3-Next model configuration"""
 
-from transformers.configuration_utils import PretrainedConfig, layer_type_validation
-from transformers.modeling_rope_utils import rope_config_validation
+try:  # COMPAT: transformers v4/v5 safe import
+    from transformers.configuration_utils import PretrainedConfig, layer_type_validation
+except ImportError:  # pragma: no cover
+    from transformers import PretrainedConfig  # type: ignore
+    layer_type_validation = None
+
+try:  # COMPAT: transformers v4/v5 safe import
+    from transformers.modeling_rope_utils import rope_config_validation
+except ImportError:  # pragma: no cover
+    rope_config_validation = None
 from transformers.utils import logging
 
 logger = logging.get_logger(__name__)
@@ -245,7 +253,8 @@ class Qwen3NextConfig(PretrainedConfig):
         self.attention_bias = attention_bias
         self.attention_dropout = attention_dropout
         self.head_dim = head_dim
-        rope_config_validation(self)
+        if rope_config_validation is not None:
+            rope_config_validation(self)
 
         self.layer_types = layer_types
         if self.layer_types is None:
@@ -253,7 +262,8 @@ class Qwen3NextConfig(PretrainedConfig):
                 "linear_attention" if bool((i + 1) % 4) else "full_attention"
                 for i in range(self.num_hidden_layers)
             ]
-        layer_type_validation(self.layer_types)
+        if layer_type_validation is not None:
+            layer_type_validation(self.layer_types)
 
         # linear attention part
         self.linear_conv_kernel_dim = linear_conv_kernel_dim

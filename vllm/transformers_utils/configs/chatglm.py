@@ -3,7 +3,7 @@
 
 # Adapted from
 # https://github.com/zai-org/ChatGLM2-6B
-from transformers import PretrainedConfig
+from vllm.transformers_utils.compat import PretrainedConfig
 
 
 class ChatGLMConfig(PretrainedConfig):

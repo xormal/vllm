@@ -9,7 +9,8 @@ from typing import cast
 
 import torch
 from torch import nn
-from transformers.utils import SAFE_WEIGHTS_INDEX_NAME
+
+from vllm.transformers_utils.compat import SAFE_WEIGHTS_INDEX_NAME
 
 from vllm.config import ModelConfig
 from vllm.config.load import LoadConfig

@@ -50,7 +50,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from transformers.activations import ACT2FN
-from transformers.modeling_utils import PreTrainedModel
+# COMPAT: transformers v4/v5 safe import
+try:
+    from transformers.modeling_utils import PreTrainedModel
+except ImportError:  # pragma: no cover
+    from transformers import PreTrainedModel  # type: ignore
 from transformers.utils import is_flash_attn_2_available
 
 from vllm.model_executor.layers.conv import Conv2dLayer

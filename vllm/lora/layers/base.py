@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 import torch
 import torch.nn as nn
-from transformers import PretrainedConfig
+from vllm.transformers_utils.compat import PretrainedConfig
 
 from vllm.config.lora import LoRAConfig
 

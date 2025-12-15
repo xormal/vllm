@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: Copyright contributors to the vLLM project
 
 
-from transformers import PretrainedConfig
+from vllm.transformers_utils.compat import PretrainedConfig
 
 
 class MLPSpeculatorConfig(PretrainedConfig):

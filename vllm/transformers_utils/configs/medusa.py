@@ -3,7 +3,7 @@
 
 import os
 
-from transformers import PretrainedConfig
+from vllm.transformers_utils.compat import PretrainedConfig
 
 
 class MedusaConfig(PretrainedConfig):

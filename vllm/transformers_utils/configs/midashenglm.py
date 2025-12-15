@@ -22,7 +22,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from transformers import PretrainedConfig
+from vllm.transformers_utils.compat import PretrainedConfig
 from transformers.models.qwen2_5_omni.configuration_qwen2_5_omni import (
     Qwen2_5OmniTextConfig,
 )

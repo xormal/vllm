@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: Copyright contributors to the vLLM project
 from typing import Any
 
-from transformers.configuration_utils import PretrainedConfig
+from vllm.transformers_utils.compat import PretrainedConfig
 from transformers.models.qwen2 import Qwen2Config
 
 

@@ -19,7 +19,7 @@ import torch
 from huggingface_hub import snapshot_download
 from torch import nn
 from torch.utils._python_dispatch import TorchDispatchMode
-from transformers import PretrainedConfig
+from vllm.transformers_utils.compat import PretrainedConfig
 
 import vllm.envs as envs
 from vllm.config import ModelConfig, ParallelConfig, VllmConfig, set_current_vllm_config

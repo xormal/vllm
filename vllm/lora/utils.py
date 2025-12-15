@@ -13,7 +13,7 @@ from huggingface_hub.utils import (
     RepositoryNotFoundError,
 )
 from torch import nn
-from transformers import PretrainedConfig
+from vllm.transformers_utils.compat import PretrainedConfig
 
 from vllm.config.lora import LoRAConfig
 from vllm.logger import init_logger

@@ -15,6 +15,7 @@ from typing_extensions import assert_never
 
 from vllm import envs
 from vllm.logger import init_logger
+from vllm.transformers_utils.compat import get_all_special_tokens_extended
 from vllm.transformers_utils.config import get_sentence_transformer_tokenizer_config
 from vllm.transformers_utils.tokenizers import MistralTokenizer
 from vllm.transformers_utils.utils import check_gguf_file
@@ -89,7 +90,9 @@ def get_cached_tokenizer(tokenizer: AnyTokenizer) -> AnyTokenizer:
 
     tokenizer_all_special_ids = tokenizer.all_special_ids
     tokenizer_all_special_tokens = tokenizer.all_special_tokens
-    tokenizer_all_special_tokens_extended = tokenizer.all_special_tokens_extended
+    tokenizer_all_special_tokens_extended = list(
+        get_all_special_tokens_extended(tokenizer)
+    )
     tokenizer_vocab = tokenizer.get_vocab()
     tokenizer_len = len(tokenizer)
 

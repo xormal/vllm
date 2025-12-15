@@ -10,7 +10,7 @@ from typing import TypeVar
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from transformers import PretrainedConfig
+from vllm.transformers_utils.compat import PretrainedConfig
 
 from vllm.config import ModelConfig, PoolerConfig, get_current_vllm_config
 from vllm.logger import init_logger

@@ -10,7 +10,7 @@ from einops import rearrange, repeat
 from torch import nn
 from torch.nn import functional as F
 from transformers import Siglip2VisionConfig
-from transformers.configuration_utils import PretrainedConfig
+from vllm.transformers_utils.compat import PretrainedConfig
 
 from vllm.attention.backends.registry import AttentionBackendEnum
 from vllm.attention.layer import maybe_get_vit_flash_attn_backend

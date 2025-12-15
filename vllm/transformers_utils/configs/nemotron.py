@@ -17,7 +17,7 @@
 # limitations under the License.
 """Nemotron model configuration"""
 
-from transformers import PretrainedConfig
+from vllm.transformers_utils.compat import PretrainedConfig
 from transformers.utils import logging
 
 logger = logging.get_logger(__name__)

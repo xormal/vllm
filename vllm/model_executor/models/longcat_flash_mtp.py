@@ -7,7 +7,7 @@ from collections.abc import Iterable
 
 import torch
 import torch.nn as nn
-from transformers import PretrainedConfig
+from vllm.transformers_utils.compat import PretrainedConfig
 
 from vllm.config import VllmConfig
 from vllm.model_executor.layers.layernorm import RMSNorm

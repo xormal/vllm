@@ -14,7 +14,8 @@ import torch
 from huggingface_hub import HfApi
 from packaging import version
 from torch import nn
-from transformers.utils import SAFE_WEIGHTS_INDEX_NAME
+
+from vllm.transformers_utils.compat import SAFE_WEIGHTS_INDEX_NAME
 
 from vllm.config import ModelConfig
 from vllm.config.load import LoadConfig

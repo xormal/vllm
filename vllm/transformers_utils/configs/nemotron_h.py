@@ -18,7 +18,7 @@
 """NemotronH model configuration"""
 
 import regex as re
-from transformers.configuration_utils import PretrainedConfig
+from vllm.transformers_utils.compat import PretrainedConfig
 from transformers.utils import logging
 
 logger = logging.get_logger(__name__)

@@ -11,7 +11,8 @@ import torch
 from pydantic import ConfigDict, SkipValidation, field_validator, model_validator
 from pydantic.dataclasses import dataclass
 from safetensors.torch import _TYPES as _SAFETENSORS_TO_TORCH_DTYPE
-from transformers.configuration_utils import ALLOWED_LAYER_TYPES
+
+from vllm.transformers_utils.compat import ALLOWED_LAYER_TYPES
 
 import vllm.envs as envs
 from vllm.config.multimodal import MMCacheType, MMEncoderTPMode, MultiModalConfig
@@ -2099,9 +2100,10 @@ def _get_and_verify_max_len(
     # In Transformers v5 rope_parameters could be TypedDict or dict[str, TypedDict].
     # To simplify the verification, we convert it to dict[str, TypedDict].
     rope_parameters = getattr(hf_config, "rope_parameters", None)
-    if rope_parameters and not set(rope_parameters.keys()).issubset(
-        ALLOWED_LAYER_TYPES
-    ):
+    allowed_layer_types = ALLOWED_LAYER_TYPES or set()
+    if rope_parameters and allowed_layer_types and not set(
+        rope_parameters.keys()
+    ).issubset(allowed_layer_types):
         rope_parameters = {"": rope_parameters}
 
     # NOTE(woosuk): Gemma3's max_model_len (128K) is already scaled by RoPE

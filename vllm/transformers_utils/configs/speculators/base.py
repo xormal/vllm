@@ -3,7 +3,7 @@
 import os
 from typing import Any
 
-from transformers import PretrainedConfig
+from vllm.transformers_utils.compat import PretrainedConfig
 
 from vllm.transformers_utils.configs.speculators.algos import (
     SUPPORTED_SPECULATORS_TYPES,
